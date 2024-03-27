@@ -13,6 +13,7 @@ import { formatCurrency } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
 import { createFileRoute } from "@tanstack/react-router";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-react";
 
 export const Route = createFileRoute("/_authenticated/all-expenses")({
   component: AllExpenses,
@@ -23,11 +24,22 @@ type Expense = {
   title: string;
   amount: number;
   date: string;
+  imageUrl?: string;
 };
 
 function AllExpenses() {
+  const { getToken } = useKindeAuth();
+
   async function getAllExpenses() {
-    const res = await fetch(import.meta.env.VITE_APP_API_URL + "/expenses");
+    const token = await getToken();
+    if (!token) {
+      throw new Error("No token found");
+    }
+    const res = await fetch(import.meta.env.VITE_APP_API_URL + "/expenses", {
+      headers: {
+        Authorization: token,
+      },
+    });
     if (!res.ok) {
       throw new Error("Something went wrong");
     }
@@ -77,6 +89,9 @@ function AllExpenses() {
                 <TableRow key={expense.id}>
                   <TableCell className="font-medium">{expense.title}</TableCell>
                   <TableCell>{expense.date.split("T")[0]}</TableCell>
+                  <TableCell>
+                    {expense.imageUrl && <img className="max-w-12" src={expense.imageUrl} />}
+                  </TableCell>
                   <TableCell className="text-right">
                     {formatCurrency(expense.amount)}
                   </TableCell>

@@ -17,6 +17,7 @@ export const expenses = pgTable(
     title: varchar("title", { length: 100 }).notNull(),
     amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
     date: date("date", { mode: "string" }).notNull(),
+    imageUrl: text("image_url"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
